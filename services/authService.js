@@ -42,7 +42,7 @@ export const authService = {
         const otp = authService.generateOTP();
         const otpKey = `otp:${email}`;
         
-        await redisClient.setex(otpKey, 300, otp); // 5 minutes expiry
+        await redisClient.setex(otpKey, 300, Number(otp)); // 5 minutes expiry
         
         await emailQueue.add("sendOTP", {
             email,
@@ -57,7 +57,7 @@ export const authService = {
         const otpKey = `otp:${email}`;
         const storedOTP = await redisClient.get(otpKey);
         
-        if (!storedOTP || storedOTP !== otp) {
+        if (!storedOTP || Number(storedOTP) !== otp) {
             throw new Error("Invalid or expired OTP");
         }
         
