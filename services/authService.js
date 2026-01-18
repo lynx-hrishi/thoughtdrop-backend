@@ -34,18 +34,23 @@ export const authService = {
     },
 
     login: async (email) => {
+        const user = await User.findOne({ email });
+        if (!user) {
+            throw new Error("User not found. Please register first.");
+        }
+
         const otp = authService.generateOTP();
         const otpKey = `otp:${email}`;
         
         await redisClient.setex(otpKey, 300, otp); // 5 minutes expiry
         
-        await emailQueue.add("sendMagicLink", {
+        await emailQueue.add("sendOTP", {
             email,
             otp,
             type: "login"
         });
         
-        return { message: "Magic link sent to your email" };
+        return { message: "OTP sent to your email", otp };
     },  
 
     verifyOTP: async (email, otp) => {

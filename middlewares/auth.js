@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
+import { errorResponse } from "../utils/response.js";
 
 export const authMiddleware = asyncHandler(async (req, res, next) => {
     const { accessToken, refreshToken } = req.cookies;
 
     if (!accessToken) {
-        return res.status(401).json({ message: "Access token required" });
+        return errorResponse(res, 401, "Authentication Error", "Access token required");
     }
 
     try {
@@ -31,10 +32,10 @@ export const authMiddleware = asyncHandler(async (req, res, next) => {
                 req.user = refreshDecoded;
                 next();
             } catch (refreshError) {
-                return res.status(401).json({ message: "Invalid refresh token" });
+                return errorResponse(res, 401, "Authentication Error", "Invalid refresh token");
             }
         } else {
-            return res.status(401).json({ message: "Invalid access token" });
+            return errorResponse(res, 401, "Authentication Error", "Invalid access token");
         }
     }
 });

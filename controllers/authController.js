@@ -1,22 +1,20 @@
 import asyncHandler from "express-async-handler";
 import { authService } from "../services/authService.js";
+import { successResponse, errorResponse } from "../utils/response.js";
 
 export const authController = {
     register: asyncHandler(async (req, res) => {
         const { email, name } = req.body;
         
         if (!email || !name) {
-            return res.status(400).json({ message: "Email and name are required" });
+            return errorResponse(res, 400, "Validation Error", "Email and name are required");
         }
         
         try {
             const user = await authService.register(email, name);
-            res.status(201).json({ 
-                message: "User registered successfully",
-                user: { id: user._id, email: user.email, name: user.name }
-            });
+            successResponse(res, "User registered successfully", null, 201);
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            errorResponse(res, 400, "Registration Failed", error.message);
         }
     }),
 
@@ -24,14 +22,14 @@ export const authController = {
         const { email } = req.body;
         
         if (!email) {
-            return res.status(400).json({ message: "Email is required" });
+            return errorResponse(res, 400, "Validation Error", "Email is required");
         }
         
         try {
             const result = await authService.login(email);
-            res.json(result);
+            successResponse(res, result.message, result.otp);
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            errorResponse(res, 400, "Login Failed", error.message);
         }
     }),
 
@@ -39,7 +37,7 @@ export const authController = {
         const { email, otp } = req.body;
         
         if (!email || !otp) {
-            return res.status(400).json({ message: "Email and OTP are required" });
+            return errorResponse(res, 400, "Validation Error", "Email and OTP are required");
         }
         
         try {
@@ -57,18 +55,17 @@ export const authController = {
                 maxAge: 7 * 24 * 60 * 60 * 1000
             });
             
-            res.json({
-                message: "Login successful",
+            successResponse(res, "Login successful", {
                 user: { id: user._id, email: user.email, name: user.name }
             });
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            errorResponse(res, 400, "Verification Failed", error.message);
         }
     }),
 
     logout: asyncHandler(async (req, res) => {
         res.clearCookie("accessToken");
         res.clearCookie("refreshToken");
-        res.json({ message: "Logged out successfully" });
+        successResponse(res, "Logged out successfully");
     })
 };
