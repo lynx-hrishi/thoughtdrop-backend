@@ -1,4 +1,7 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config({ quiet: true });
 
 const configuration = {
   host: process.env.SMTP_HOST || "smtp.gmail.com",
