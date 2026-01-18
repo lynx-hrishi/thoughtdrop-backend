@@ -12,12 +12,14 @@
   },
   "dependencies": {
     "bullmq": "^5.66.5",
+    "cookie-parser": "^1.4.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "express-async-handler": "^1.2.0",
     "ioredis": "^5.9.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.1.4",
+    "nodemailer": "^6.9.8",
     "nodemon": "^3.1.11"
   }
 }

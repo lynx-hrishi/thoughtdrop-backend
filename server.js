@@ -1,14 +1,28 @@
 import express from "express";
+import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 import { reqLogger } from "./middlewares/logger.js";
+import authRoutes from "./routes/authRoutes.js";
+import "./queue/emailWorker.js";
 import dotenv from "dotenv";
 
 dotenv.config({ quiet: true });
 
-// Initialize expresss app
+// Initialize express app
 const app = express();
 
-// Add utils and routes
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 app.use(reqLogger);
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/thoughtdrop")
+    .then(() => console.log("Connected to MongoDB"))
+    .catch(err => console.error("MongoDB connection error:", err));
+
+// Routes
+app.use("/api/auth", authRoutes);
 
 // Static routes for health checkups
 app.get("/", (req, res) => {
