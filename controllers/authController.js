@@ -26,10 +26,16 @@ export const authController = {
         }
         
         try {
+            const isUser = await authService.findUserByEmail(email);
+
+            if (!isUser) {
+                const user = await authService.register(email);
+                // return successResponse(res, "User registered and logged in", { user });
+            }
             const result = await authService.login(email);
-            successResponse(res, result.message, result.otp);
+            return successResponse(res, result.message, result.otp);
         } catch (error) {
-            errorResponse(res, 400, "Login Failed", error.message);
+            return errorResponse(res, 400, "Login Failed", error.message);
         }
     }),
 

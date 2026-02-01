@@ -22,7 +22,7 @@ export const authService = {
         return { accessToken, refreshToken };
     },
 
-    register: async (email, name) => {
+    register: async (email, name="Unknown") => {
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             throw new Error("User already exists");
@@ -73,5 +73,9 @@ export const authService = {
         
         const tokens = authService.generateTokens(user._id, user.email);
         return { user, tokens };
-    }
+    },
+
+    findUserByEmail: async (email) => await User.findOne({ email }),
+
+    findUserById: async (id) => await User.findById(id)
 };
