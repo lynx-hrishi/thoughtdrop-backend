@@ -6,7 +6,7 @@ import { authService } from "../services/authService.js";
 const userController = {
     setUserPreferencesController: expressAsyncHandler(async (req, res) => {
         try {
-            const userPref = await userService.setUserPreferencesService(req.user.userId, req.body);
+            const userPref = await userService.setUserPreferencesService(req.user.userId, req.body, req.files);
             return successResponse(res, "User Preference set successfully", userPref, 201);
         } 
         catch (err) {

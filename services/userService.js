@@ -5,13 +5,14 @@ import { getZodiacSign } from "./zodiacService.js";
 import { authService } from "./authService.js";
 
 const userService = { 
-    setUserPreferencesService: async (user_id, body) => {
+    setUserPreferencesService: async (user_id, body, files) => {
         const { 
-            name, gender, dob, profession, interests, profileImage, postImage, partnerGender,
+            name, gender, dob, profession, interests, partnerGender,
             partnerPreference, ageFrom, ageEnd
         } = body;
 
-        if (!name || !gender || !dob || !profession || !interests || !profileImage || !postImage || !partnerGender || !partnerPreference || !ageFrom || !ageEnd) throw new Error("Fields cannot be empty");
+        if (!name || !gender || !dob || !profession || !interests || !partnerGender || !partnerPreference || !ageFrom || !ageEnd) throw new Error("Fields cannot be empty");
+        if (!files?.profileImage?.[0]) throw new Error("Profile image is required");
 
         const session = await startTransaction();
         const userPrefNotSetErrorMsg = "Failed to set user preferences";
@@ -21,9 +22,16 @@ const userService = {
             const user = await authService.findUserById(user_id);
             if (user.isProfileSet) throw new Error("Profile is already set. Please Update the Profile");
 
-            const saveUser = await User.findByIdAndUpdate(user_id, {
-                name, gender: gender.toUpperCase(), dateOfBirth: dob, zodiacSign, profession, interests, isProfileSet: true
-            }, { new: true });
+            const updateData = {
+                name, gender: gender.toUpperCase(), dateOfBirth: dob, zodiacSign, profession, interests, isProfileSet: true,
+                profileImage: files.profileImage[0].buffer
+            };
+            
+            if (files.postImages) {
+                updateData.postImages = files.postImages.map(file => file.buffer);
+            }
+             
+            const saveUser = await User.findByIdAndUpdate(user_id, updateData, { new: true }).select("-profileImage -postImages -__v -createdAt -updatedAt").lean();
             
             if(!saveUser) {
                 // await abortTransaction(session);

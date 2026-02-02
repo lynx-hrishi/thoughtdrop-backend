@@ -87,7 +87,7 @@ export const authService = {
     },
 
     findUserById: async (id) => {
-        const userDoc = await User.findById(id);        
+        const userDoc = await User.findById(id).select("-profileImage -postImages -__v -createdAt -updatedAt");     
         const user = userDoc.toObject();
         if (user.dateOfBirth) user.age = calculateAge(user.dateOfBirth);
         return user;
