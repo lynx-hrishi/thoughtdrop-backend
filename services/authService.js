@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { redisClient } from "../config/redisConfig.js";
 import emailQueue from "../queue/emailQueue.js";
+import { calculateAge } from "./calculateAge.js";
 
 export const authService = {
     generateOTP: () => Math.floor(100000 + Math.random() * 900000),
@@ -28,7 +29,7 @@ export const authService = {
             throw new Error("User already exists");
         }
 
-        const user = new User({ email, name });
+        const user = new User({ email, name, verificationExpiresAt: new Date(Date.now() + 5 * 60 * 1000) });
         await user.save();
         return user;
     },
@@ -69,18 +70,26 @@ export const authService = {
             throw new Error("User not found");
         }
         
-        if (user.verificationExpiresAt) {
-            await User.findByIdAndUpdate(user._id, { $unset: { verificationExpiresAt: "" } });
-        }
-
-        user.isVerified = true;
-        await user.save();
+        const updatedUser = await User.updateOne({ email }, {
+            $set: { isVerified: true },
+            $unset: { verificationExpiresAt: "" }
+        })
+        console.log({updatedUser})
         
         const tokens = authService.generateTokens(user._id, user.email);
         return { user, tokens };
     },
 
-    findUserByEmail: async (email) => await User.findOne({ email }),
+    findUserByEmail: async (email) => {
+        const user = await User.findOne({ email });
+        // if (user.dateOfBirth) user.age = calculateAge(user?.dateOfBirth);
+        return user;
+    },
 
-    findUserById: async (id) => await User.findById(id),
+    findUserById: async (id) => {
+        const userDoc = await User.findById(id);        
+        const user = userDoc.toObject();
+        if (user.dateOfBirth) user.age = calculateAge(user.dateOfBirth);
+        return user;
+    },
 };

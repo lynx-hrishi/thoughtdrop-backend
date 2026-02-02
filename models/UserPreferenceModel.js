@@ -7,13 +7,16 @@ const userPreferenceSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    partnerPreference: {
+    partnerGender: {
         type: String,
         enum: [
             genderConstants.Male,
             genderConstants.Female
         ],
         required: true
+    },
+    partnerPreference: {
+        type: String
     },
     ageFrom: {
         type: Number

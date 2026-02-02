@@ -25,8 +25,7 @@ export const authMiddleware = asyncHandler(async (req, res, next) => {
                 
                 res.cookie("accessToken", newAccessToken, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === "production",
-                    maxAge: 15 * 60 * 1000
+                    secure: process.env.NODE_ENV === "production"
                 });
                 
                 req.user = refreshDecoded;

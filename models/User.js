@@ -58,16 +58,13 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    aboutUser: {
-        type: String
-    },
     verificationExpiresAt: {
-        type: Date,
-        index: { expires: 0 },
-        default:  new Date(Date.now() + 5 * 60 * 1000)
+        type: Date
     }
 }, {
     timestamps: true
 });
+
+userSchema.index({ verificationExpiresAt: 1 }, { expireAfterSeconds: 0 });
 
 export default mongoose.model("User", userSchema);

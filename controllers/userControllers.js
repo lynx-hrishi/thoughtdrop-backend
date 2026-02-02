@@ -18,7 +18,7 @@ const userController = {
     getUserById: expressAsyncHandler(async(req, res) => {
         try {
             const user = await authService.findUserById(req.user.userId);
-            console.log(user);
+            console.log(user)
             if (!user) throw new Error("User not found");
             return successResponse(res, "User found", user);
         } 

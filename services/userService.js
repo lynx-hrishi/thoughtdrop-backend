@@ -4,14 +4,14 @@ import { startTransaction, commitTransaction, abortTransaction } from "../config
 import { getZodiacSign } from "./zodiacService.js";
 import { authService } from "./authService.js";
 
-const userService = {
+const userService = { 
     setUserPreferencesService: async (user_id, body) => {
         const { 
-            name, gender, dob, profession, interests, profileImage, postImage, aboutUser,
+            name, gender, dob, profession, interests, profileImage, postImage, partnerGender,
             partnerPreference, ageFrom, ageEnd
         } = body;
 
-        if (!name || !gender || !dob || !profession || !interests || !profileImage || !postImage || !aboutUser || !partnerPreference || !ageFrom || !ageEnd) throw new Error("Fields cannot be empty");
+        if (!name || !gender || !dob || !profession || !interests || !profileImage || !postImage || !partnerGender || !partnerPreference || !ageFrom || !ageEnd) throw new Error("Fields cannot be empty");
 
         const session = await startTransaction();
         const userPrefNotSetErrorMsg = "Failed to set user preferences";
@@ -22,15 +22,15 @@ const userService = {
             if (user.isProfileSet) throw new Error("Profile is already set. Please Update the Profile");
 
             const saveUser = await User.findByIdAndUpdate(user_id, {
-                name, gender: gender.toUpperCase(), dateOfBirth: dob, zodiacSign, profession, interests, isProfileSet: true, aboutUser
-            });
+                name, gender: gender.toUpperCase(), dateOfBirth: dob, zodiacSign, profession, interests, isProfileSet: true
+            }, { new: true });
             
             if(!saveUser) {
                 // await abortTransaction(session);
                 throw new Error(userPrefNotSetErrorMsg);
             }
             const saveUserPreference = await UserPreferenceModel.create({
-                userId: saveUser._id, partnerPreference, ageFrom, ageEnd
+                userId: saveUser._id, partnerGender: partnerGender.toUpperCase(), partnerPreference, ageFrom, ageEnd
             });
             
             if(!saveUserPreference) {
@@ -38,7 +38,7 @@ const userService = {
                 throw new Error(userPrefNotSetErrorMsg);
             }
             await commitTransaction(session);
-            return saveUserPreference;
+            return {saveUserPreference, saveUser};
         }
         catch(err){
             await abortTransaction(session);
