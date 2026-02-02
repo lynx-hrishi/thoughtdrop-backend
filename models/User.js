@@ -18,8 +18,8 @@ const userSchema = new mongoose.Schema({
             genderConstants.Female
         ]
     },
-    age: {
-        type: Number
+    dateOfBirth: {
+        type: String
     },
     zodiacSign: {
         type: String,
@@ -53,6 +53,13 @@ const userSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
+    },
+    isProfileSet: {
+        type: Boolean,
+        default: false
+    },
+    aboutUser: {
+        type: String
     },
     verificationExpiresAt: {
         type: Date,

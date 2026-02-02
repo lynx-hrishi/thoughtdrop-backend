@@ -4,7 +4,7 @@ import { redisClient } from "../config/redisConfig.js";
 import emailQueue from "../queue/emailQueue.js";
 
 export const authService = {
-    generateOTP: () => Math.floor(100000 + Math.random() * 900000).toString(),
+    generateOTP: () => Math.floor(100000 + Math.random() * 900000),
 
     generateTokens: (userId, email) => {
         const accessToken = jwt.sign(
@@ -68,6 +68,10 @@ export const authService = {
             throw new Error("User not found");
         }
         
+        if (user.verificationExpiresAt) {
+            await User.findByIdAndUpdate(user._id, { $unset: { verificationExpiresAt: "" } });
+        }
+
         user.isVerified = true;
         await user.save();
         
@@ -77,5 +81,5 @@ export const authService = {
 
     findUserByEmail: async (email) => await User.findOne({ email }),
 
-    findUserById: async (id) => await User.findById(id)
+    findUserById: async (id) => await User.findById(id),
 };
