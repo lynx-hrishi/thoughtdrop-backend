@@ -42,6 +42,7 @@ export const authService = {
         const otp = authService.generateOTP();
         const otpKey = `otp:${email}`;
         
+        await redisClient.del(otpKey);
         await redisClient.setex(otpKey, 300, Number(otp)); // 5 minutes expiry
         
         await emailQueue.add("sendOTP", {

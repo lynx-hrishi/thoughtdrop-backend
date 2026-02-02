@@ -22,7 +22,7 @@ const userService = {
             if (user.isProfileSet) throw new Error("Profile is already set. Please Update the Profile");
 
             const saveUser = await User.findByIdAndUpdate(user_id, {
-                name, gender, dateOfBirth: dob, zodiacSign, profession, interests, isProfileSet: true, aboutUser
+                name, gender: gender.toUpperCase(), dateOfBirth: dob, zodiacSign, profession, interests, isProfileSet: true, aboutUser
             });
             
             if(!saveUser) {
