@@ -41,15 +41,15 @@ const userSchema = new mongoose.Schema({
     profession: {
         type: String,
     },
-    interests: {
-        type: [String],
-    },
+    interests: [{
+        type: String,
+    }],
     profileImage: {
         type: Buffer
     },
-    postImages: {
-        type: [Buffer]
-    },
+    postImages: [{
+        type: Buffer
+    }],
     isVerified: {
         type: Boolean,
         default: false
