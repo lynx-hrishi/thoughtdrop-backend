@@ -38,6 +38,19 @@ const userController = {
             console.log(err);
             return errorResponse(res, 400, "Failed to load User Info", err.message, err);
         }
+    }),
+
+    getUserImageByIdController: expressAsyncHandler(async (req, res) => {
+        try{
+            const userImage =  await userService.getUserImageByIdService(req.params.userId, req.params.index);
+            // return successResponse(res, "User Image Fetched Successfully", userImage);
+            res.set("Content-Type", "image/jpg");
+            return res.json({ userImage });
+        }
+        catch(err){
+            console.log(err);
+            return errorResponse(res, 400, "Failed to load User Image", err.message, err);
+        }
     })
 }
 

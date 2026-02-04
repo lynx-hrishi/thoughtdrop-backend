@@ -3,6 +3,7 @@ import UserPreferenceModel from "../models/UserPreferenceModel.js";
 import { startTransaction, commitTransaction, abortTransaction } from "../config/handleDbTransactions.js";
 import { getZodiacSign } from "./zodiacService.js";
 import { authService } from "./authService.js";
+import mongoose from "mongoose";
 
 const userService = { 
     setUserPreferencesService: async (user_id, body, files) => {
@@ -52,6 +53,28 @@ const userService = {
             await abortTransaction(session);
             throw err;
         }
+    },
+
+    getUserImageByIdService: async (id, index) => {
+        let userImage;
+        
+        if (Number.isNaN(Number(index))) userImage = await User.findById(id).select("profileImage").lean();
+        else {
+            userImage = await User.aggregate([
+                {
+                    $match: {
+                        _id: new mongoose.Types.ObjectId(id)
+                    }
+                },
+                {
+                    $project: {
+                        value: { $arrayElemAt: ['$postImages', Number(index)] }
+                    }
+                }
+            ])
+        }
+
+        return userImage.value ?? userImage;
     }
 }
 
