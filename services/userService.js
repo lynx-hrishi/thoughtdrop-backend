@@ -25,10 +25,7 @@ const userService = {
             if (user.isProfileSet) throw new Error("Profile is already set. Please Update the Profile");
 
             // Compress profile image
-            const compressedProfileImage = await compressIfNeededService(
-                files.profileImage[0].buffer, 
-                files.profileImage[0].mimetype
-            );
+            const compressedProfileImage = await compressImage(files.profileImage[0]);
 
             const updateData = {
                 name, gender: gender.toUpperCase(), dateOfBirth: dob, zodiacSign, profession, interests, isProfileSet: true,
@@ -37,12 +34,7 @@ const userService = {
             
             // Compress post images if they exist
             if (files.postImages) {
-                const compressedPostImages = await Promise.all(
-                    files.postImages.map(file => 
-                        compressIfNeededService(file.buffer, file.mimetype)
-                    )
-                );
-                updateData.postImages = compressedPostImages;
+                updateData.postImages = await compressImages(files.postImages);
             }
              
             const saveUser = await User.findByIdAndUpdate(user_id, updateData, { new: true }).select("-profileImage -postImages -__v -createdAt -updatedAt").lean();
@@ -69,11 +61,13 @@ const userService = {
     },
 
     getUserImageByIdService: async (id, index) => {
-        let userImage;
+        let result;
         
-        if (Number.isNaN(Number(index))) userImage = await User.findById(id).select("profileImage").lean();
-        else {
-            userImage = await User.aggregate([
+        if (Number.isNaN(Number(index))) {
+            result = await User.findById(id).select("profileImage").lean();
+            return result?.profileImage;
+        } else {
+            result = await User.aggregate([
                 {
                     $match: {
                         _id: new mongoose.Types.ObjectId(id)
@@ -81,13 +75,12 @@ const userService = {
                 },
                 {
                     $project: {
-                        value: { $arrayElemAt: ['$postImages', Number(index)] }
+                        postImage: { $arrayElemAt: ['$postImages', Number(index)] }
                     }
                 }
-            ])
+            ]);
+            return result[0]?.postImage;
         }
-
-        return userImage.value ?? userImage;
     }
 }
 

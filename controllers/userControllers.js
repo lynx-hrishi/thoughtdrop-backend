@@ -42,11 +42,17 @@ const userController = {
 
     getUserImageByIdController: expressAsyncHandler(async (req, res) => {
         try{
-            const userImage =  await userService.getUserImageByIdService(req.params.userId, req.params.index);
-            // return successResponse(res, "User Image Fetched Successfully", userImage);
-            res.set("Content-Type", "image/jpg");
-            console.log(userImage.profileImage)
-            return res.send(userImage.profileImage);
+            const imageData = await userService.getUserImageByIdService(req.params.userId, req.params.index);
+            
+            if (!imageData) {
+                return errorResponse(res, 404, "Image not found", "No image found for the specified user");
+            }
+            
+            // Convert MongoDB Binary to Buffer
+            const imageBuffer = Buffer.from(imageData.buffer || imageData);
+            
+            res.set('Content-Type', 'image/jpeg');
+            res.end(imageBuffer);
         }
         catch(err){
             console.log(err);
