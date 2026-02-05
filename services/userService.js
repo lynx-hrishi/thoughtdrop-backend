@@ -3,6 +3,7 @@ import UserPreferenceModel from "../models/UserPreferenceModel.js";
 import { startTransaction, commitTransaction, abortTransaction } from "../config/handleDbTransactions.js";
 import { getZodiacSign } from "./zodiacService.js";
 import { authService } from "./authService.js";
+import { compressImage, compressImages } from "../utils/imageUtils.js";
 import mongoose from "mongoose";
 
 const userService = { 
@@ -23,13 +24,25 @@ const userService = {
             const user = await authService.findUserById(user_id);
             if (user.isProfileSet) throw new Error("Profile is already set. Please Update the Profile");
 
+            // Compress profile image
+            const compressedProfileImage = await compressIfNeededService(
+                files.profileImage[0].buffer, 
+                files.profileImage[0].mimetype
+            );
+
             const updateData = {
                 name, gender: gender.toUpperCase(), dateOfBirth: dob, zodiacSign, profession, interests, isProfileSet: true,
-                profileImage: files.profileImage[0].buffer
+                profileImage: compressedProfileImage
             };
             
+            // Compress post images if they exist
             if (files.postImages) {
-                updateData.postImages = files.postImages.map(file => file.buffer);
+                const compressedPostImages = await Promise.all(
+                    files.postImages.map(file => 
+                        compressIfNeededService(file.buffer, file.mimetype)
+                    )
+                );
+                updateData.postImages = compressedPostImages;
             }
              
             const saveUser = await User.findByIdAndUpdate(user_id, updateData, { new: true }).select("-profileImage -postImages -__v -createdAt -updatedAt").lean();

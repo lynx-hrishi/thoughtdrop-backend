@@ -45,7 +45,8 @@ const userController = {
             const userImage =  await userService.getUserImageByIdService(req.params.userId, req.params.index);
             // return successResponse(res, "User Image Fetched Successfully", userImage);
             res.set("Content-Type", "image/jpg");
-            return res.json({ userImage });
+            console.log(userImage.profileImage)
+            return res.send(userImage.profileImage);
         }
         catch(err){
             console.log(err);
