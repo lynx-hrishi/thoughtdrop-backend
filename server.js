@@ -6,6 +6,7 @@ import "./queue/emailWorker.js";
 import dotenv from "dotenv";
 import { connectToDb } from "./config/dbConnect.js";
 import userRoutes from "./routes/userRoutes.js";
+import matchRoutes from "./routes/matchRoutes.js";
 import { authMiddleware } from "./middlewares/auth.js";
 
 dotenv.config({ quiet: true });
@@ -23,6 +24,7 @@ await connectToDb();
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", authMiddleware, userRoutes);
+app.use("/api/match", authMiddleware, matchRoutes);
 
 // Static routes for health checkups
 app.get("/", (req, res) => {
