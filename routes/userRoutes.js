@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.post("/set-user-preference", imageUploadMiddleware, userController.setUserPreferencesController);
 router.get("/get-user-details", userController.getUserById);
-router.get("/:userId/:index", userController.getUserImageByIdController);
+router.get("/image/:userId/:index", userController.getUserImageByIdController);
 
 export default router;
