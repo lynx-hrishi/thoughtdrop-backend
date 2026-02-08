@@ -110,6 +110,7 @@ export const authService = {
         ]);
 
         const user = userDoc[0];
+        console.log(user)
         if (user.dateOfBirth) user.age = calculateAge(user.dateOfBirth);
         if (user.postImagesCount >= 1) {
             const url = [];
