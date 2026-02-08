@@ -4,6 +4,7 @@ import { redisClient } from "../config/redisConfig.js";
 import emailQueue from "../queue/emailQueue.js";
 import { calculateAge } from "./calculateAge.js";
 import mongoose from "mongoose";
+import UserPreferenceModel from "../models/UserPreferenceModel.js";
 
 export const authService = {
     generateOTP: () => Math.floor(100000 + Math.random() * 900000),
@@ -102,7 +103,7 @@ export const authService = {
                     dateOfBirth: 1,
                     zodiacSign: 1,
                     profession: 1,
-                    interest: 1,
+                    interests: 1,
                     postImagesCount: { $size: "$postImages" }
                 }
             }
@@ -117,6 +118,8 @@ export const authService = {
             }
             user.postImageUrl = url;
             user.profileImageUrl = `${process.env.BACKEND_URL}/api/user/image/${user._id}/banner`;
+            const partnerPreference = await UserPreferenceModel.findOne({ userId: new mongoose.Types.ObjectId(id) }, { _id: false, partnerPreference: true }).lean();
+            user.partnerPreference = partnerPreference.partnerPreference;
         }
         return user;
     },

@@ -60,7 +60,7 @@ export const authController = {
             });
             
             successResponse(res, "Login successful", {
-                user: { id: user._id, email: user.email, name: user.name }
+                user: { id: user._id, email: user.email, name: user.name, isProfileSet: user.isProfileSet }
             });
         } catch (error) {
             errorResponse(res, 400, "Verification Failed", error.message);
