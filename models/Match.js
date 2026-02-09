@@ -8,7 +8,7 @@ const matchSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-matchSchema.index({ users: 1 }, { unique: true });
+// matchSchema.index({ users: 1 }, { unique: true });
 
 
 export default mongoose.model("Match", matchSchema);

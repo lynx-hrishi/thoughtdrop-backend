@@ -144,6 +144,32 @@ const userService = {
         const finalUser = await User.findById(userId).select("-profileImage -postImages -__v -createdAt -updatedAt").lean();
         
         return { user: finalUser, preference: updatedPreference };
+    },
+
+    deletePostImageService: async (userId, index) => {
+        const user = await User.findById(userId).select("postImages");
+        if (!user) throw new Error("User not found");
+        
+        if (user.postImages.length <= 1) {
+            throw new Error("Cannot delete the last post image. At least one post image is required");
+        }
+        
+        const imageIndex = parseInt(index);
+        if (imageIndex < 0 || imageIndex >= user.postImages.length) {
+            throw new Error("Invalid image index");
+        }
+        
+        await User.findByIdAndUpdate(
+            userId,
+            { $unset: { [`postImages.${imageIndex}`]: 1 } }
+        );
+        
+        await User.findByIdAndUpdate(
+            userId,
+            { $pull: { postImages: null } }
+        );
+        
+        return { message: "Post image deleted successfully" };
     }
 }
 

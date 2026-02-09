@@ -68,6 +68,16 @@ const userController = {
             console.log(err);
             return errorResponse(res, 400, "Failed to update profile", err.message, err);
         }
+    }),
+
+    deletePostImage: expressAsyncHandler(async (req, res) => {
+        try {
+            const result = await userService.deletePostImageService(req.user.userId, req.params.index);
+            return successResponse(res, "Post image deleted successfully", result);
+        } catch (err) {
+            console.log(err);
+            return errorResponse(res, 400, "Failed to delete post image", err.message, err);
+        }
     })
 }
 

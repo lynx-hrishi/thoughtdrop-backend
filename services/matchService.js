@@ -87,16 +87,19 @@ export const matchService = {
             fromUser: new mongoose.Types.ObjectId(toUser), 
             toUser: new mongoose.Types.ObjectId(fromUser) 
         });
+        console.log({checkIfMutual})
 
         if (checkIfMutual){
             const users  = [fromUser, toUser].sort();
 
             try{
                 const createMatch = await Match.create({ users });
+                console.log({createMatch})
                 return { hasMatched: true };
             }
             catch(err) {
                 if (err.code !== 11000) throw err;
+                else throw new Error("Duplication Error");
             }
         }
         return { hasMatched: false };
