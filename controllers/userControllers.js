@@ -58,6 +58,16 @@ const userController = {
             console.log(err);
             return errorResponse(res, 400, "Failed to load User Image", err.message, err);
         }
+    }),
+
+    updateProfile: expressAsyncHandler(async (req, res) => {
+        try {
+            const result = await userService.updateProfileService(req.user.userId, req.body, req.files);
+            return successResponse(res, "Profile updated successfully", result);
+        } catch (err) {
+            console.log(err);
+            return errorResponse(res, 400, "Failed to update profile", err.message, err);
+        }
     })
 }
 

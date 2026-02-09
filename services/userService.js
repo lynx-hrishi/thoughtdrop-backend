@@ -81,6 +81,69 @@ const userService = {
             ]);
             return result[0]?.postImage;
         }
+    },
+
+    updateProfileService: async (userId, body, files) => {
+        const { gender, profession, interests, partnerGender, partnerPreference, ageFrom, ageEnd } = body;
+        
+        const updateData = {};
+        if (gender) updateData.gender = gender.toUpperCase();
+        if (profession) updateData.profession = profession;
+        if (interests) updateData.interests = interests;
+        
+        if (files?.profileImage?.[0]) {
+            const compressedProfileImage = await compressImage(files.profileImage[0]);
+            updateData.profileImage = compressedProfileImage;
+            console.log('Profile image compressed, size:', compressedProfileImage.length, 'isBuffer:', Buffer.isBuffer(compressedProfileImage));
+        }
+        
+        if (files?.postImages) {
+            const compressedPostImages = await compressImages(files.postImages);
+            await User.findByIdAndUpdate(
+                userId,
+                { $push: { postImages: { $each: compressedPostImages } } }
+            );
+            console.log('Post images compressed and appended, count:', compressedPostImages.length);
+        }
+        
+        console.log('Update data keys:', Object.keys(updateData));
+        console.log('UserId:', userId);
+        
+        if (Object.keys(updateData).length > 0) {
+            const updatedUser = await User.findByIdAndUpdate(
+                userId,
+                updateData,
+                { new: true }
+            );
+            
+            console.log('Update result:', updatedUser ? 'Success' : 'Failed');
+            
+            // Verify the save
+            const verifyUser = await User.findById(userId).select('postImages profileImage');
+            console.log('Verification - Has profileImage:', !!verifyUser?.profileImage);
+            console.log('Verification - postImages count:', verifyUser?.postImages?.length || 0);
+            
+            if (!updatedUser) throw new Error("Failed to update user profile");
+        }
+        
+        const prefUpdateData = {};
+        if (partnerGender) prefUpdateData.partnerGender = partnerGender.toUpperCase();
+        if (partnerPreference) prefUpdateData.partnerPreference = partnerPreference;
+        if (ageFrom) prefUpdateData.ageFrom = ageFrom;
+        if (ageEnd) prefUpdateData.ageEnd = ageEnd;
+        
+        let updatedPreference = null;
+        if (Object.keys(prefUpdateData).length > 0) {
+            updatedPreference = await UserPreferenceModel.findOneAndUpdate(
+                { userId },
+                prefUpdateData,
+                { new: true }
+            ).lean();
+        }
+        
+        const finalUser = await User.findById(userId).select("-profileImage -postImages -__v -createdAt -updatedAt").lean();
+        
+        return { user: finalUser, preference: updatedPreference };
     }
 }
 
