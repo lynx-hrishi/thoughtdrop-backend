@@ -1,4 +1,4 @@
-import { app } from "../server.js";
+import { app } from "../serverFile.js";
 import http from "http";
 import { Server } from "socket.io";
 import messageQueue from "../queue/messageQueue.js";

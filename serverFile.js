@@ -22,7 +22,7 @@ app.use(cookieParser());
 app.use(reqLogger);
 
 await connectToDb();
-const server = await websocketController();
+export const server = await websocketController();
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -38,8 +38,8 @@ app.get("/api/health", (req, res) => {
     return res.json({ message: "API is healthly" });
 });
 
-const PORT = process.env.PORT;
+// const PORT = process.env.PORT;
 
-server.listen(PORT, (req, res) => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+// server.listen(PORT, (req, res) => {
+//     console.log(`Server running on http://localhost:${PORT}`);
+// });
