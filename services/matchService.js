@@ -87,14 +87,14 @@ export const matchService = {
             fromUser: new mongoose.Types.ObjectId(toUser), 
             toUser: new mongoose.Types.ObjectId(fromUser) 
         });
-        console.log({checkIfMutual})
+        // console.log({checkIfMutual})
 
         if (checkIfMutual){
             const users  = [fromUser, toUser].sort();
 
             try{
                 const createMatch = await Match.create({ users });
-                console.log({createMatch})
+                // console.log({createMatch})
                 return { hasMatched: true };
             }
             catch(err) {
