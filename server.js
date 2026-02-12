@@ -3,16 +3,18 @@ import cookieParser from "cookie-parser";
 import { reqLogger } from "./middlewares/logger.js";
 import authRoutes from "./routes/authRoutes.js";
 import "./queue/emailWorker.js";
+import "./queue/messageWorker.js";
 import dotenv from "dotenv";
 import { connectToDb } from "./config/dbConnect.js";
 import userRoutes from "./routes/userRoutes.js";
 import matchRoutes from "./routes/matchRoutes.js";
 import { authMiddleware } from "./middlewares/auth.js";
+import { websocketController } from  "./controllers/websocketControllers.js";
 
 dotenv.config({ quiet: true });
 
 // Initialize express app
-const app = express();
+export const app = express();
 
 // Middleware
 app.use(express.json());
@@ -20,6 +22,7 @@ app.use(cookieParser());
 app.use(reqLogger);
 
 await connectToDb();
+const server = await websocketController();
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -37,6 +40,6 @@ app.get("/api/health", (req, res) => {
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, (req, res) => {
+server.listen(PORT, (req, res) => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
