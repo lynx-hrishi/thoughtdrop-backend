@@ -8,7 +8,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node app.js"
+    "dev": "nodemon app.js", 
+    "start": "node app.js"
   },
   "dependencies": {
     "bullmq": "^5.66.5",
