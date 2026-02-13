@@ -37,24 +37,36 @@ export const authService = {
     },
 
     login: async (email) => {
-        const user = await User.findOne({ email });
-        if (!user) {
-            throw new Error("User not found. Please register first.");
-        }
+        // const user = await User.findOne({ email });
+        // if (!user) {
+        //     throw new Error("User not found. Please register first.");
+        // }
 
-        const otp = authService.generateOTP();
-        const otpKey = `otp:${email}`;
+        // const otp = authService.generateOTP();
+        // const otpKey = `otp:${email}`;
         
-        await redisClient.del(otpKey);
-        await redisClient.setex(otpKey, 300, Number(otp)); // 5 minutes expiry
+        // await redisClient.del(otpKey);
+        // await redisClient.setex(otpKey, 300, Number(otp)); // 5 minutes expiry
         
-        await emailQueue.add("sendOTP", {
-            email,
-            otp,
-            type: "login"
+        // await emailQueue.add("sendOTP", {
+        //     email,
+        //     otp,
+        //     type: "login"
+        // });
+        
+        // return { message: "OTP sent to your email", otp };
+        const res = await fetch("https://thoughtdrop-backend.vercel.app/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: {
+                "email": email
+            }
         });
-        
-        return { message: "OTP sent to your email", otp };
+
+        const data = await res.json();
+        if (res.ok) return { message: "OTP sent to your email", otp: data.otp };
     },  
 
     verifyOTP: async (email, otp) => {
