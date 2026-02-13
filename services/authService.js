@@ -5,6 +5,7 @@ import emailQueue from "../queue/emailQueue.js";
 import { calculateAge } from "./calculateAge.js";
 import mongoose from "mongoose";
 import UserPreferenceModel from "../models/UserPreferenceModel.js";
+import emailServiceQueue from "../queue/emailServiceQueue.js";
 
 export const authService = {
     generateOTP: () => Math.floor(100000 + Math.random() * 900000),
@@ -37,6 +38,7 @@ export const authService = {
     },
 
     login: async (email) => {
+        // Version 1
         // const user = await User.findOne({ email });
         // if (!user) {
         //     throw new Error("User not found. Please register first.");
@@ -55,19 +57,35 @@ export const authService = {
         // });
         
         // return { message: "OTP sent to your email", otp };
-        const res = await fetch("https://thoughtdrop-backend.vercel.app/api/auth/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                "email": email
-            })
-        });
 
-        const data = await res.json();
-        console.log(data)
-        if (res.ok) return { message: "OTP sent to your email", otp: data.otp };
+        // Version 2
+        // const res = await fetch("https://thoughtdrop-backend.vercel.app/api/auth/login", {
+        //     method: "POST",
+        //     headers: {
+        //         "Content-Type": "application/json"
+        //     },
+        //     body: JSON.stringify({
+        //         "email": email
+        //     })
+        // });
+
+        // const data = await res.json();
+        // console.log(data)
+        // if (res.ok) return { message: "OTP sent to your email", otp: data.otp };
+
+        // Version 3
+        const otp = authService.generateOTP();
+        const otpKey = `otp:${email}`;
+        
+        await redisClient.del(otpKey);
+        await redisClient.setex(otpKey, 300, Number(otp)); // 5 minutes expiry
+        
+        await emailServiceQueue.add("sendOTP", {
+            email,
+            otp
+        });
+        
+        return { message: "OTP sent to your email", otp };        
     },  
 
     verifyOTP: async (email, otp) => {

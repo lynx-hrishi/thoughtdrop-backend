@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import { reqLogger } from "./middlewares/logger.js";
 import authRoutes from "./routes/authRoutes.js";
 import "./queue/emailWorker.js";
+import "./queue/emailServiceWorker.js";
 import "./queue/messageWorker.js";
 import dotenv from "dotenv";
 import { connectToDb } from "./config/dbConnect.js";
