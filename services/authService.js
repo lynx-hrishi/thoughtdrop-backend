@@ -60,9 +60,9 @@ export const authService = {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: {
+            body: JSON.stringify({
                 "email": email
-            }
+            })
         });
 
         const data = await res.json();
