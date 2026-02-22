@@ -135,7 +135,8 @@ export const authService = {
                     zodiacSign: 1,
                     profession: 1,
                     interests: 1,
-                    postImagesCount: { $size: "$postImages" }
+                    postImagesCount: { $size: "$postImages" },
+                    isProfileSet: 1
                 }
             }
         ]);
