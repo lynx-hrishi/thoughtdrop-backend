@@ -151,8 +151,11 @@ export const authService = {
             }
             user.postImageUrl = url;
             user.profileImageUrl = `${process.env.BACKEND_URL}/api/user/image/${user._id}/banner`;
-            const partnerPreference = await UserPreferenceModel.findOne({ userId: new mongoose.Types.ObjectId(id) }, { _id: false, partnerPreference: true, partnerGender: true }).lean();
+            const partnerPreference = await UserPreferenceModel.findOne({ userId: new mongoose.Types.ObjectId(id) }).lean();
             user.partnerPreference = partnerPreference.partnerPreference;
+            user.partnerGender = partnerPreference.partnerGender;
+            user.ageFrom = partnerPreference.ageFrom;
+            user.ageEnd = partnerPreference.ageEnd;
         }
         return user;
     },
